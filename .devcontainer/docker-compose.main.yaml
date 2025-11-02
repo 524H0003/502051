@@ -1,0 +1,35 @@
+services:
+  devcontainer:
+    image: alpine:latest
+    volumes:
+      - ../..:/workspaces:cached
+      - share:/workspaces/502051/src
+    command: sleep infinity
+
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: cloudbeaver
+    ports:
+      - "8978:8978"
+    volumes:
+      - share:/opt/cloudbeaver/workspace/GlobalConfiguration
+    restart: unless-stopped
+
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: 'admin!23'
+    networks:
+      - private
+    volumes:
+      - mssql:/var/opt/mssql/data
+
+volumes:
+  mssql:
+  share:
+
+networks:
+  private:
+    driver: bridge
