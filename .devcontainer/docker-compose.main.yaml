@@ -13,8 +13,10 @@ services:
     container_name: cloudbeaver
     ports:
       - "80:8978"
+    networks:
+      - private
     volumes:
-      - share:/opt/cloudbeaver/workspace/GlobalConfiguration
+      - share:/opt/cloudbeaver/workspace
     restart: unless-stopped
 
 
