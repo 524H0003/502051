@@ -1,6 +1,8 @@
 services:
   devcontainer:
-    image: alpine:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ../..:/workspaces:cached
       - share:/workspaces/502051/src
@@ -10,7 +12,7 @@ services:
     image: dbeaver/cloudbeaver:latest
     container_name: cloudbeaver
     ports:
-      - "8978:8978"
+      - "80:8978"
     volumes:
       - share:/opt/cloudbeaver/workspace/GlobalConfiguration
     restart: unless-stopped
@@ -18,6 +20,7 @@ services:
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    user: root
     environment:
       ACCEPT_EULA: 'Y'
       MSSQL_SA_PASSWORD: 'admin!23'
