@@ -12,7 +12,7 @@ services:
     image: dbeaver/cloudbeaver:latest
     container_name: cloudbeaver
     ports:
-      - "80:8978"
+      - "8010:8978"
     networks:
       - private
     volumes:
@@ -22,10 +22,11 @@ services:
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql
     user: root
     environment:
-      ACCEPT_EULA: 'Y'
-      MSSQL_SA_PASSWORD: 'admin!23'
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=@dmin!23
     networks:
       - private
     volumes:
