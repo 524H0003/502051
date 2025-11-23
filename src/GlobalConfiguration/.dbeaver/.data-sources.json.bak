@@ -1,4 +1,40 @@
 {
-  "folders": {},
-  "connections": {}
+	"folders": {},
+	"connections": {
+		"microsoft-19a44d6cabb-28fa25e14485b3a": {
+			"provider": "sqlserver",
+			"driver": "microsoft",
+			"name": "SQL Server@mssql",
+			"save-password": true,
+			"configuration": {
+				"host": "mssql",
+				"port": "1433",
+				"database": "master",
+				"url": "jdbc:sqlserver://;serverName\u003dmssql;databaseName\u003dmaster",
+				"configurationType": "MANUAL",
+				"type": "dev",
+				"closeIdleConnection": true,
+				"auth-model": "sqlserver_database",
+				"bootstrap": {
+					"autocommit": true
+				}
+			}
+		}
+	},
+	"connection-types": {
+		"dev": {
+			"name": "Development",
+			"color": "255,255,255",
+			"description": "Regular development database",
+			"auto-commit": true,
+			"confirm-execute": false,
+			"confirm-data-change": false,
+			"smart-commit": false,
+			"smart-commit-recover": true,
+			"auto-close-transactions": true,
+			"close-transactions-period": 1800,
+			"auto-close-connections": true,
+			"close-connections-period": 14400
+		}
+	}
 }
