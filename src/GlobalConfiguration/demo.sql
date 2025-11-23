@@ -10,7 +10,10 @@ INSERT INTO Phong (MaPhong, SoGiuong, GiaTien, DangSuDung) VALUES
 ('P101', 1, 500000.00, 1),
 ('P102', 2, 850000.00, 0),
 ('P201', 2, 900000.00, 1),
-('P202', 3, 1200000.00, 0);
+('P202', 3, 1200000.00, 0),
+('P301', 1, 650000.00, 0),
+('P302', 2, 950000.00, 0),
+('P401', 3, 1300000.00, 0);
 
 MERGE ThoiGian AS Target
 USING (SELECT 0 AS ID, '2025-12-11' AS ThoiGianHienTai) AS Source
@@ -74,4 +77,4 @@ EXEC sp_TaoHoaDonThanhToan
 EXEC sp_doanhThuThang
 
 -- kiểm tra fn_SoLanDatPhong
-select * from fn_SoLanDatPhong('KH001')
+select * from fn_SoLanDatPhong('KH001');

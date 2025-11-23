@@ -1,56 +1,57 @@
 -- Phú
+create or alter function BangThoiGian(@TG smalldatetime, @SoNgay int)
+returns @T TABLE (Ngay date) 
+AS
+BEGIN
+	DECLARE @count int = 0;
+    declare @date date = @TG;
+
+    while @count < @SoNgay
+    begin
+      insert into @T values (@date);
+
+      SET @count = @count + 1;
+      SET @date = DATEADD(day, 1, @date);
+    END
+
+    return
+END;
+
 CREATE or alter VIEW View_PhongTrongTheoNgay AS
-WITH DateRange AS (
-    SELECT
-        CAST(MIN(NgayNhan) AS DATE) AS CalendarDate,
-        CAST(MAX(NgayTra) AS DATE) AS MaxDate
-    FROM HoaDon
-    UNION ALL
-    SELECT
-        DATEADD(day, 1, CalendarDate),
-        MaxDate
-    FROM DateRange
-    WHERE DATEADD(day, 1, CalendarDate) <= MaxDate
-),
-AllRooms AS (
-    SELECT MaPhong FROM Phong
-),
-OccupiedRooms AS (
-    -- Ghép các phòng đang bị chiếm với các ngày nằm trong khoảng thời gian thuê
-    SELECT DISTINCT
-        P.MaPhong,
-        CAST(D.CalendarDate AS SMALLDATETIME) AS Ngay
-    FROM
-        DateRange D
-    INNER JOIN
-        HoaDon H ON D.CalendarDate >= CAST(H.NgayNhan AS DATE)
-                 AND D.CalendarDate < CAST(H.NgayTra AS DATE) -- Phòng bị chiếm từ NgayNhan đến NgayTra - 1
-    INNER JOIN
-        AllRooms P ON H.MaPhong = P.MaPhong
-)
--- Tìm các tổ hợp (MaPhong, Ngay) KHÔNG tồn tại trong danh sách bị chiếm
 SELECT
-    CAST(DR.CalendarDate AS SMALLDATETIME) AS Ngay,
-    STRING_AGG(AR.MaPhong,', ') as PhongTrong
+    Ngay,
+    STRING_AGG(P.MaPhong,', ') as PhongTrong
 FROM
-    AllRooms AR
+    Phong P
 CROSS JOIN
-    DateRange DR
+    (
+      SELECT Ngay
+      FROM dbo.BangThoiGian((SELECT giaTri FROM ThoiGian WHERE id = 0), 60)
+    ) CNKT
 LEFT JOIN
-    OccupiedRooms ORM ON AR.MaPhong = ORM.MaPhong AND CAST(DR.CalendarDate AS SMALLDATETIME) = ORM.Ngay
+    HoaDon HD ON P.MaPhong = HD.MaPhong
+             AND CNKT.Ngay between HD.NgayNhan and HD.NgayTra
 WHERE
-    ORM.MaPhong IS NULL
-GROUP BY 
-    CAST(DR.CalendarDate AS SMALLDATETIME);
+    HD.MaPhong IS NULL
+GROUP BY Ngay;
 
 -- Danh
-CREATE or alter VIEW V_KhachDatPhong_TrongThang AS
-select 
-    DATEPART(year, hd.NgayNhan) as Nam,
-    DATEPART(month, hd.NgayNhan) as Thang,
-    STRING_AGG(kh.HoVaTen,', ') as KhachDatPhong
-From HoaDon hd
-join KhachHang kh on hd.MaKH = kh.MaKH
-join Phong p on hd.MaPhong = p.MaPhong
-where 1=1
-GROUP BY DATEPART(month, hd.NgayNhan), DATEPART(year, hd.NgayNhan)
+CREATE or alter VIEW V_KhachDatPhongTheoThang AS
+SELECT
+    T.Nam,
+    T.Thang,
+    STRING_AGG(T.HoVaTen, ', ') AS KhachHang
+FROM
+    (
+        SELECT DISTINCT
+            DATEPART(YEAR, HD.NgayNhan) AS Nam,
+            DATEPART(MONTH, HD.NgayNhan) AS Thang,
+            KH.HoVaTen
+        FROM
+            KhachHang KH
+        INNER JOIN
+            HoaDon HD ON HD.MaKH = KH.MaKH
+    ) T
+GROUP BY
+    T.Nam,
+    T.Thang;
