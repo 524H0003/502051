@@ -1,20 +1,16 @@
 -- Danh
 CREATE or alter FUNCTION fn_SoDemThue
 (
-    @NgayNhan smalldatetime,
-    @NgayTra smalldatetime
+    @NgayNhan date,
+    @NgayTra  date
 )
 RETURNS INT
 AS
 BEGIN
-  DECLARE 
-    @SoDem INT = DATEDIFF(day, @NgayNhan, @NgayTra),
-    @SoGiay INT = DATEDIFF(second, @NgayNhan, @NgayTra);
+  DECLARE @SoDem INT = DATEDIFF(day, @NgayNhan, @NgayTra);
 
-  IF (@SoGiay <= 0)
+  IF (@SoDem < 0)
     SET @SoDem = 0;
-  ELSE IF (@SoDem = 0)
-    SET @SoDem = 1;
 
   RETURN @SoDem;
 END;
@@ -35,9 +31,9 @@ END;
 
 -- Việt Anh
 create or alter function fn_TongTienThue(
-  @MaPhong char(10),
-  @NgayNhan smalldatetime,
-  @NgayTra smalldatetime
+  @MaPhong  char(10),
+  @NgayNhan date,
+  @NgayTra  date
 )
 returns float
 AS

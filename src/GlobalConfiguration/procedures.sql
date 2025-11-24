@@ -3,24 +3,19 @@ CREATE OR ALTER PROCEDURE sp_DatPhong
 (
     @MaKH          char(10),
     @MaPhong       char(10),
-    @NgayNhan      smalldatetime,
-    @NgayTra       smalldatetime
+    @NgayNhan      date,
+    @NgayTra       date
 )
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM KhachHang WHERE MaKH = @MaKH)
-    BEGIN
+    IF NOT EXISTS (SELECT * FROM KhachHang WHERE MaKH = @MaKH)
         THROW 50000, N'Lỗi: Mã khách hàng không tồn tại.', 1;
-    END
 
-    
-    IF NOT EXISTS (SELECT 1 FROM Phong WHERE MaPhong = @MaPhong)
-    BEGIN
+    IF NOT EXISTS (SELECT * FROM Phong WHERE MaPhong = @MaPhong)
         THROW 50000, N'Lỗi: Mã phòng không tồn tại.', 1;
-    END
 
     INSERT INTO HoaDon(MaKH, MaPhong, NgayNhan, NgayTra, TongThanhToan)
-    VALUES (@MaKH, @MaPhong, @NgayNhan, @NgayTra, dbo.fn_TongTienThue(@MaPhong, @NgayNhan, @NgayTra));
+    VALUES (@MaKH, @MaPhong, @NgayNhan, @NgayTra, 0);
 END
 
 -- Phú
@@ -39,7 +34,7 @@ END;
 CREATE OR ALTER PROCEDURE sp_TaoHoaDonThanhToan
 (
     @MaPhong            char(10),
-    @NgayNhan           smalldatetime,
+    @NgayNhan           date,
     @SoTienThanhToan    float
 )
 AS
@@ -52,14 +47,10 @@ BEGIN
                                       SoTienThanhToan is null);
 
     IF (@TongThanhToan is null)
-    BEGIN
         THROW 50000, N'Lỗi: Không tìm thấy hóa đơn cần thanh toán.', 1;
-    END
 
     IF (@SoTienThanhToan < @TongThanhToan)
-    BEGIN
         Throw 50000, N'Cảnh báo: Khách hàng đã thanh toán chưa đủ tổng tiền hóa đơn.', 1;
-    END
 
     UPDATE HoaDon
     SET 

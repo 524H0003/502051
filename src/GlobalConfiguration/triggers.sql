@@ -11,13 +11,13 @@ BEGIN
   )
       THROW 50000, N'Lỗi: Ngày trả phải sau ngày nhận ít nhất 1 ngày.', 1;
   
-  IF EXISTS (SELECT 1 FROM deleted) 
+  IF EXISTS (SELECT * FROM deleted) 
       DELETE HD
       FROM HoaDon HD
       INNER JOIN deleted D ON HD.MaPhong = D.MaPhong AND HD.NgayNhan = D.NgayNhan;
   
   IF EXISTS (
-      SELECT 1
+      SELECT *
       FROM inserted I
       INNER JOIN HoaDon HD ON I.MaPhong = HD.MaPhong
       WHERE 
@@ -28,33 +28,27 @@ BEGIN
       ROLLBACK TRANSACTION; 
       THROW 50000, N'Lỗi: Phòng đã được đặt trong khoảng thời gian yêu cầu bởi một hóa đơn khác.', 1;
   END
-  
-  INSERT INTO HoaDon SELECT * FROM inserted;
-END;
 
--- Phú
-CREATE or alter trigger trg_CapNhatNgayTra
-ON HoaDon
-AFTER UPDATE
-AS
-	IF UPDATE(NgayTra)
-    BEGIN
-    	DECLARE @Gia float = (SELECT DISTINCT GiaTien from Phong, inserted where Phong.MaPhong = inserted.MaPhong)
-        
-        UPDATE HoaDon
-        Set HoaDon.TongThanhToan = HoaDon.TongThanhToan + @Gia * DATEDIFF(day, inserted.NgayTra, deleted.NgayTra)
-        From HoaDon, inserted, deleted
-        Where HoaDon.MaKH = inserted.MaKH and HoaDon.MaPhong = inserted.MaPhong
-    END
+  INSERT INTO HoaDon
+  SELECT
+      I.MaKH,
+      I.MaPhong,
+      I.NgayNhan,
+      I.NgayTra,
+      dbo.fn_TongTienThue(I.MaPhong, I.NgayNhan, I.NgayTra) AS TongThanhToan,
+      I.NgayThanhToan,
+      I.SoTienThanhToan
+  FROM inserted I;
+END;
 
 -- Việt Anh
 Create or alter trigger trg_CapNhatThoiGian
 ON ThoiGian
 after insert, update
 as begin
-    DECLARE @thoiGian smalldatetime =(SELECT giaTri
-                                      FROM inserted
-                                      WHERE id = 0);
+    DECLARE @thoiGian date =(SELECT giaTri
+                             FROM inserted
+                             WHERE id = 0);
     UPDATE Phong SET DangSuDung = 0;
 
     UPDATE P
@@ -64,4 +58,24 @@ as begin
     WHERE 
         @thoiGian >= HD.NgayNhan 
         AND @thoiGian < HD.NgayTra;
+END;
+
+-- Nâng cao
+CREATE OR ALTER TRIGGER trg_GioiHanBookingChuaTra
+ON HoaDon
+AFTER INSERT
+AS
+BEGIN  
+    IF EXISTS (
+        SELECT *
+        FROM HoaDon HD
+        JOIN Inserted i ON i.MaKH = HD.MaKH
+        WHERE i.SoTienThanhToan IS NULL
+        GROUP BY i.MaKH, i.NgayNhan
+        HAVING COUNT(i.MaKH) > 3
+    )
+    BEGIN
+        ROLLBACK TRANSACTION;
+        THROW 50000, N'Lỗi: Khách hàng không được có từ 3 đơn đặt phòng chưa trả.', 1;
+    END
 END;

@@ -1,5 +1,5 @@
 -- Phú
-create or alter function BangThoiGian(@TG smalldatetime, @SoNgay int)
+create or alter function BangThoiGian(@TG date, @SoNgay int)
 returns @T TABLE (Ngay date) 
 AS
 BEGIN
@@ -55,3 +55,19 @@ FROM
 GROUP BY
     T.Nam,
     T.Thang;
+
+-- Việt Anh
+CREATE OR ALTER VIEW V_Top5PhongDoanhThu AS
+SELECT TOP 5
+    P.MaPhong,
+    SUM(HD.TongThanhToan) AS TongDoanhThu
+FROM 
+    HoaDon HD
+INNER JOIN 
+    Phong P ON HD.MaPhong = P.MaPhong
+WHERE 
+    HD.NgayThanhToan IS NOT NULL
+GROUP BY 
+    P.MaPhong
+ORDER BY 
+    TongDoanhThu DESC;
