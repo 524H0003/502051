@@ -22,17 +22,17 @@ SELECT
     Ngay,
     STRING_AGG(P.MaPhong,', ') as PhongTrong
 FROM
-    Phong P
-CROSS JOIN
-    (
-      SELECT Ngay
-      FROM dbo.BangThoiGian((SELECT giaTri FROM ThoiGian WHERE id = 0), 60)
-    ) CNKT
-LEFT JOIN
-    HoaDon HD ON P.MaPhong = HD.MaPhong
-             AND CNKT.Ngay between HD.NgayNhan and HD.NgayTra
-WHERE
-    HD.MaPhong IS NULL
+  ThoiGian CROSS APPLY BangThoiGian(ThoiGian.giaTri, 30) as BTG, 
+  Phong as P
+WHERE 
+  NOT EXISTS
+  (
+    select * from HoaDon as HD
+    where 
+    P.MaPhong = HD.MaPhong 
+    and 
+    BTG.Ngay between HD.NgayNhan and HD.NgayTra 
+  )
 GROUP BY Ngay;
 
 -- Danh

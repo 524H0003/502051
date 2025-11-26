@@ -16,7 +16,7 @@ INSERT INTO Phong VALUES
 ('P401', 3, 1300000.00, 0);
 
 MERGE ThoiGian AS Target
-USING (SELECT 0 AS ID, '2025-12-11' AS ThoiGianHienTai) AS Source
+USING (SELECT 0 AS ID, '2022-12-11' AS ThoiGianHienTai) AS Source
 ON (Target.ID = Source.ID)
 WHEN MATCHED THEN
     UPDATE SET Target.giaTri = Source.ThoiGianHienTai
@@ -33,8 +33,8 @@ SELECT
     KetQuaMongDoi AS [KQ Mong Đợi],
     dbo.fn_SoDemThue(NgayNhan, NgayTra) AS [KQ Thực Tế],
     CASE 
-        WHEN KetQuaMongDoi = dbo.fn_SoDemThue(NgayNhan, NgayTra) THEN N'✅ PASS (Đạt)'
-        ELSE N'❌ FAIL (Không Đạt)'
+        WHEN KetQuaMongDoi = dbo.fn_SoDemThue(NgayNhan, NgayTra) THEN N'PASS (Đạt)'
+        ELSE N'FAIL (Không Đạt)'
     END AS [Trạng Thái Kiểm Tra]
 FROM test_SoDemThue;
 
@@ -47,31 +47,31 @@ SELECT
     TC.KetQuaMongDoi AS [KQ Mong Đợi],
     dbo.fn_TongTienThue(TC.MaPhong, TC.NgayNhan, TC.NgayTra) AS [KQ Thực Tế],
     CASE 
-        WHEN TC.KetQuaMongDoi = dbo.fn_TongTienThue(TC.MaPhong, TC.NgayNhan, TC.NgayTra) THEN N'✅ PASS'
-        WHEN TC.KetQuaMongDoi IS NULL AND dbo.fn_TongTienThue(TC.MaPhong, TC.NgayNhan, TC.NgayTra) IS NULL THEN N'✅ PASS (NULL)'
-        ELSE N'❌ FAIL'
+        WHEN TC.KetQuaMongDoi = dbo.fn_TongTienThue(TC.MaPhong, TC.NgayNhan, TC.NgayTra) THEN N'PASS'
+        WHEN TC.KetQuaMongDoi IS NULL AND dbo.fn_TongTienThue(TC.MaPhong, TC.NgayNhan, TC.NgayTra) IS NULL THEN N'PASS (NULL)'
+        ELSE N'FAIL'
     END AS [Trạng Thái Kiểm Tra]
 FROM test_TongTienThue TC;
 
 -- kiểm tra fn_SoLanDatPhong
-select * from fn_SoLanDatPhong('KHT01');
+select * from fn_SoLanDatPhong(null);
 
 -- kiểm tra procedures
 -- kiểm tra sp_datPhong
 EXEC sp_DatPhong @MaKH = 'KH999', @MaPhong = 'P101', @NgayNhan = '2025-12-01', @NgayTra = '2025-12-03';
 EXEC sp_DatPhong @MaKH = 'KH001', @MaPhong = 'P999', @NgayNhan = '2025-12-01', @NgayTra = '2025-12-03';
 EXEC sp_DatPhong @MaKH = 'KH001', @MaPhong = 'P101', @NgayNhan = '2025-12-05', @NgayTra = '2025-12-05';
-EXEC sp_DatPhong @MaKH = 'KH001', @MaPhong = 'P101', @NgayNhan = '2027-01-10', @NgayTra = '2027-12-12';
+EXEC sp_DatPhong @MaKH = 'KH001', @MaPhong = 'P101', @NgayNhan = '2022-12-10', @NgayTra = '2022-12-12';
 
 -- kiểm tra sp_TaoHoaDonThanhToan
 EXEC sp_TaoHoaDonThanhToan 
     @MaPhong = 'P101',
-    @NgayNhan = '2025-12-10', 
+    @NgayNhan = '2022-12-10', 
     @SoTienThanhToan = 5000;
 
 EXEC sp_TaoHoaDonThanhToan 
     @MaPhong = 'P101',
-    @NgayNhan = '2025-12-10', 
+    @NgayNhan = '2022-12-10', 
     @SoTienThanhToan = 50000000000;
 
 -- kiểm tra sp_doanhThuThang
@@ -81,6 +81,6 @@ EXEC sp_doanhThuThang
 update 
   HoaDon
 SET
-  NgayTra = '2025-12-19'
+  NgayTra = '2022-12-19'
 WHERE 
-  MaPhong = 'P101' and NgayNhan = '2025-12-10'
+  MaPhong = 'P101' and NgayNhan = '2022-12-10'

@@ -20,13 +20,23 @@ create or alter function fn_SoLanDatPhong(@Khach char(10) )
 returns @T TABLE (KH char(10), SLDatPhong int)
 AS
 BEGIN
+	if (@Khach is not null)
+    BEGIN
 	insert into @T
-    SELECT MaKH, Count(TongThanhToan)
+        SELECT MaKH, COUNT(TongThanhToan)
     from HoaDon 
     where MaKH = @Khach
     GROUP BY MaKH
+    END
+    ELSE
+    BEGIN
+    	insert into @T
+        SELECT MaKH, COUNT(TongThanhToan)
+        from HoaDon 
+        GROUP BY MaKH
+   END
     
-    return
+   return;
 END;
 
 -- Việt Anh

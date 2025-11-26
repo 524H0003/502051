@@ -23,11 +23,11 @@ create procedure sp_DoanhThuThang
 AS
 begin 
     select 
-        DATEPART(month, HoaDon.NgayNhan) as Thang,
+      FORMAT(HoaDon.NgayNhan, 'yyyy-MM') AS Thang,
         SUM(HoaDon.TongThanhToan) as DoanhThu
     From HoaDon 
     where HoaDon.NgayThanhToan is not null
-    GROUP BY DATEPART(month, HoaDon.NgayNhan)
+    GROUP BY FORMAT(HoaDon.NgayNhan, 'yyyy-MM')
 END;
 
 -- Danh

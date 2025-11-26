@@ -32,7 +32,7 @@ create table HoaDon(
   NgayNhan         date                not null,
   NgayTra          date                not null,
   TongThanhToan    float               not null,
-  NgayThanhToan    date         ,
+  NgayThanhToan    date,
   SoTienThanhToan  float,
 
   constraint PK_HoaDon primary key (MaPhong, NgayNhan),

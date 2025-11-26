@@ -61,18 +61,18 @@ as begin
 END;
 
 -- Nâng cao
-CREATE OR ALTER TRIGGER trg_GioiHanBookingChuaTra
+CREATE or alter TRIGGER trg_GioiHanBookingChuaTra
 ON HoaDon
 AFTER INSERT
-AS
-BEGIN  
+AS BEGIN  
     IF EXISTS (
-        SELECT *
-        FROM HoaDon HD
-        JOIN Inserted i ON i.MaKH = HD.MaKH
-        WHERE i.SoTienThanhToan IS NULL
-        GROUP BY i.MaKH, i.NgayNhan
-        HAVING COUNT(i.MaKH) > 3
+        SELECT 1
+        FROM (
+            SELECT MaKH, MaPhong, NgayNhan, NgayThanhToan FROM HoaDon
+        ) AS T
+        WHERE NgayThanhToan IS NULL
+        GROUP BY MaKH
+        HAVING COUNT(MaKH) > 3
     )
     BEGIN
         ROLLBACK TRANSACTION;
